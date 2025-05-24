@@ -33,25 +33,3 @@ def fetch_dataset(folder="dataset"):
 
     return dataset
     
-def preprocess_data(df, variables, filepath=None):
-    if filepath is not None and not os.path.exists(filepath):
-        variables = variables[variables.type == "Categorical"]
-        variables = variables[variables.role != "Target"]
-
-        CAT2IDX = {}
-        for col in variables.name:
-            uniques = remove_ifnan(df[col].unique())
-            CAT2IDX[col] = {uniques[idx]: idx for idx in range(len(uniques))}
-            if variables[variables.name == col].missing_values.values[0] == "yes":
-                CAT2IDX[col][np.nan] = -1
-
-        for idx in range(len(df)):
-            for col in df.iloc[idx].index:
-              if col in CAT2IDX.keys():
-                    df.loc[idx, col] = CAT2IDX[col].get(df.loc[idx, col], -1)
-
-        df.to_csv(filepath, index=False)
-        return df
-
- 
-    return pd.read_csv(filepath)
